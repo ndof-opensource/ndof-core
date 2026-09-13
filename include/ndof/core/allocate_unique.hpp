@@ -16,28 +16,10 @@ namespace ndof {
         };
         
         namespace detail {
-
-
-        // Note: This should be a soft standard for us: Mark destroy functions noexcept if exceptions are disabled,
-        //       unless there is a good reason not to.
-        template<typename T, typename Alloc>
-        void deallocate_and_destroy(Alloc& alloc, std::remove_extent_t<T>* pointer, std::size_t count) noexcept(!ndof::exceptions_feature_enabled()) {
-            using traits = std::allocator_traits<Alloc>;
-
-            if constexpr (std::is_array_v<T>) {
-                std::destroy_n(pointer, count);
-                traits::deallocate(alloc, pointer, count);
-            }
-            else {
-                std::destroy_at(pointer);
-                traits::deallocate(alloc, pointer, 1);
-            }
-        } 
-
         template<typename T, typename A, typename ...Args>
         consteval bool ctor_is_noexcept() {
             using traits = std::allocator_traits<A>;
-            return noexcept(traits::construct(std::declval<A&>(), std::declval<traits::pointer>(), std::declval<Args>()...));
+            return noexcept(traits::construct(std::declval<A&>(), std::declval<typename traits::pointer>(), std::declval<Args>()...));
         }
 
         template<typename T, typename Alloc, typename... Args>
@@ -62,12 +44,7 @@ namespace ndof {
     // There is a memory penalty here that is unavoidable. 
     // In order to achieve type erasure of the allocator,
     // we need to store a type-erased version of the allocator along with the allocation count.
-    template<typename T>
     struct deallocating_deleter {
-    public:
-        using element_type = std::remove_extent_t<T>;
-        using pointer = element_type*;
-
     private:
         struct allocator_state {
             allocator_state() = default;
@@ -77,44 +54,48 @@ namespace ndof {
             allocator_state& operator=(allocator_state&&) = delete;
             virtual ~allocator_state() = default;
 
-            virtual std::unique_ptr<allocator_state> clone() const = 0;
-            virtual void deallocate_and_destroy(pointer p) noexcept = 0;
+            [[nodiscard]] virtual std::unique_ptr<allocator_state> clone() const = 0;
+            virtual void deallocate_and_destroy(void* pointer) noexcept = 0;
         };
 
         template<typename Alloc>
         struct allocator_state_for final : allocator_state {
-            using allocator_type =
-                typename std::allocator_traits<Alloc>::template rebind_alloc<element_type>;
+            using allocator_type = Alloc;
+            using element_type = typename std::allocator_traits<allocator_type>::value_type;
 
-            allocator_state_for(Alloc allocator)
-                : alloc(std::move(allocator))  {}
+            explicit allocator_state_for(allocator_type allocator)
+                : alloc(std::move(allocator)) {}
 
-            std::unique_ptr<allocator_state> clone() const override {
-                return std::make_unique<allocator_state_for>(alloc, 1);
+            [[nodiscard]] std::unique_ptr<allocator_state> clone() const override {
+                return std::make_unique<allocator_state_for>(alloc);
             }
 
-            void deallocate_and_destroy(pointer p) noexcept override {
-                detail::deallocate_and_destroy<T>(alloc, p, 1);
+            void deallocate_and_destroy(void* pointer) noexcept override {
+                auto* typed_pointer = static_cast<element_type*>(pointer);
+                std::destroy_at(typed_pointer);
+                std::allocator_traits<allocator_type>::deallocate(alloc, typed_pointer, 1);
             }
 
         private:
             [[no_unique_address]] allocator_type alloc;
         };
 
-                template<typename Alloc>
+        template<typename Alloc>
         struct allocator_state_with_count_for final : allocator_state {
-            using allocator_type =
-                typename std::allocator_traits<Alloc>::template rebind_alloc<element_type>;
+            using allocator_type = Alloc;
+            using element_type = typename std::allocator_traits<allocator_type>::value_type;
 
-            allocator_state_with_count_for(Alloc allocator, std::size_t allocation_count)
+            allocator_state_with_count_for(allocator_type allocator, std::size_t allocation_count)
                 : alloc(std::move(allocator)), count(allocation_count) {}
 
-            std::unique_ptr<allocator_state> clone() const override {
-                return std::make_unique<allocator_state_with_count_for<Alloc>>(alloc, count);
+            [[nodiscard]] std::unique_ptr<allocator_state> clone() const override {
+                return std::make_unique<allocator_state_with_count_for>(alloc, count);
             }
 
-            void deallocate_and_destroy(pointer p) noexcept override {
-                detail::deallocate_and_destroy<T>(alloc, p, count);
+            void deallocate_and_destroy(void* pointer) noexcept override {
+                auto* typed_pointer = static_cast<element_type*>(pointer);
+                std::destroy_n(typed_pointer, count);
+                std::allocator_traits<allocator_type>::deallocate(alloc, typed_pointer, count);
             }
 
         private:
@@ -126,8 +107,10 @@ namespace ndof {
  
         template<typename Alloc>
         std::unique_ptr<allocator_state> initialize_state(Alloc alloc, std::size_t count) {
-            return count == 1 ? std::make_unique<allocator_state_for<Alloc>>(std::move(alloc))
-                               : std::make_unique<allocator_state_with_count_for<Alloc>>(std::move(alloc), count);
+            if (count == 1) {
+                return std::make_unique<allocator_state_for<Alloc>>(std::move(alloc));
+            }
+            return std::make_unique<allocator_state_with_count_for<Alloc>>(std::move(alloc), count);
         }
 
     public:
@@ -158,15 +141,17 @@ namespace ndof {
         deallocating_deleter(deallocating_deleter&&) noexcept = default;
         deallocating_deleter& operator=(deallocating_deleter&&) noexcept = default;
 
-        void operator()(pointer p) const noexcept {
-            if (p != nullptr) {
-                    state->deallocate_and_destroy(p);
+        void operator()(void* pointer) const noexcept {
+            if (pointer != nullptr) {
+                state->deallocate_and_destroy(pointer);
             }
         }
     };
 
     template<typename T>
-    using allocated_unique_ptr = std::unique_ptr<T, deallocating_deleter<T>>;
+    using allocated_unique_ptr = std::unique_ptr<
+        std::conditional_t<std::is_array_v<T>, std::remove_extent_t<T>[], T>,
+        deallocating_deleter>;
 
     template<typename T>
     using allocation_result_t = std::conditional_t<
@@ -184,7 +169,7 @@ namespace ndof {
         using traits = std::allocator_traits<A>;
 
         A a{alloc};
-        deallocating_deleter<T> deleter{a};
+        deallocating_deleter deleter{a};
         T* p = traits::allocate(a, 1);
 
         if constexpr (ndof::exceptions_feature_enabled()) {
@@ -234,7 +219,7 @@ namespace ndof {
 
         }
 
-        return allocated_unique_ptr<T>{p, deallocating_deleter<T>{a, count}};
+        return allocated_unique_ptr<T>{p, deallocating_deleter{a, count}};
     }
 
     template<typename T, typename Alloc>
@@ -261,7 +246,7 @@ namespace ndof {
         }
 
         return allocated_unique_ptr<T> {
-            p, deallocating_deleter<T>{a, count}
+            p, deallocating_deleter{a, count}
         };
     }
 } // namespace ndof
