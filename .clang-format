@@ -9,3 +9,18 @@ PointerAlignment: Left
 DerivePointerAlignment: false
 AllowShortFunctionsOnASingleLine: Inline
 InsertNewlineAtEOF: true
+AlignAfterOpenBracket: Always
+AlignConsecutiveAssignments: true
+AcrossEmptyLines: false
+AlignCompound: true
+AlignFunctionDeclarations: true
+AlignConsecutiveDeclarations: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowBreakBeforeNoexceptSpecifier: true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: false
+AllowShortRecordOnASingleLine: Empty
+EmptyLineAfterAccessModifier: Never
+
+

@@ -15,6 +15,7 @@
 
 // #include <expected> May be included below if exceptions are disabled. This is a C++23 feature, so we need to check for compiler support and provide a fallback if necessary.
 
+// TODO: Come up with a clearer strategy of dependendies here.
 
 // Captures a boolean test value together with the original expression text.
 // Example: auto [passed, name] = NDOF_CAPTURE_BOOL_TEST(x > 0);
@@ -22,6 +23,10 @@
 
 #if !defined(NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION) 
 #define NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION 0
+#endif
+
+#if !defined(NDOF_EXPECTED_RETURN_PREFERRED) 
+#define NDOF_EXPECTED_RETURN_PREFERRED NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION
 #endif
 
 #if !defined(NDOF_RTTI_FEATURE_ENABLED)
@@ -66,16 +71,27 @@
 
 namespace ndof {
 consteval bool avoid_implicit_heap_allocation() noexcept {
-    return NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION != 0;
+    return NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION == 1;
 }
 
-[[nodiscard]] consteval bool exceptions_feature_enabled() noexcept {
-#if defined(NDOF_EXCEPTIONS_FEATURE_ENABLED) && NDOF_EXCEPTIONS_FEATURE_ENABLED == 1
+
+[[nodiscard]] consteval bool expected_return_preferred() noexcept {
+#if defined(NDOF_EXPECTED_RETURN_PREFERRED) && NDOF_EXPECTED_RETURN_PREFERRED == 1
     return true;
 #else
     return false;
 #endif
 }
+
+[[nodiscard]] consteval bool exceptions_feature_enabled() noexcept {
+#if (defined(NDOF_EXCEPTIONS_FEATURE_ENABLED) && NDOF_EXCEPTIONS_FEATURE_ENABLED == 1)  
+    return true;
+#else
+    return false;
+#endif
+}
+
+
 
 #if defined(NDOF_RTTI_FEATURE_ENABLED) && NDOF_RTTI_FEATURE_ENABLED == 1
 using type_token = std::type_index;
@@ -107,6 +123,7 @@ enum class build_mode : std::uint8_t {
 };
  
 enum class type_index_mode : std::uint8_t {
+    undefined,
     ndof_type_index,
     rtti_type_index
 };

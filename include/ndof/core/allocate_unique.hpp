@@ -148,6 +148,8 @@ namespace ndof {
         }
     };
 
+    // TODO: Tighten this up by not losing any information (i.e., extent, etc.), maybe with a helper.
+    //       Also consider multidimensional arrays.
     template<typename T>
     using allocated_unique_ptr = std::unique_ptr<
         std::conditional_t<std::is_array_v<T>, std::remove_extent_t<T>[], T>,
