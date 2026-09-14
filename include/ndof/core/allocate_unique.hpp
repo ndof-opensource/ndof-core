@@ -1,3 +1,5 @@
+#pragma once
+
 #include "configs.hpp"
 #include "allocator_support.hpp"
 #include "definitions.hpp"

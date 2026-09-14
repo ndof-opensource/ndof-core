@@ -1,8 +1,5 @@
-#ifndef NDOF_CORE_ERROR_INTERFACE_HPP
-#define NDOF_CORE_ERROR_INTERFACE_HPP
+#pragma once
 
 namespace ndof {
 
 } // namespace ndof
-
-#endif // NDOF_CORE_ERROR_INTERFACE_HPP

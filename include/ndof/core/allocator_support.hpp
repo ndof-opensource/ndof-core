@@ -1,5 +1,4 @@
-#if !defined(NDOF_ERROR_ALLOCATOR_SUPPORT_HPP)
-#define NDOF_ERROR_ALLOCATOR_SUPPORT_HPP
+#pragma once
 
 #include "configs.hpp"
 
@@ -111,6 +110,3 @@ template<allocator_like Alloc>
 
 
 } // namespace ndof::error
-
-#endif
-

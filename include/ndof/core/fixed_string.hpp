@@ -1,5 +1,4 @@
-#ifndef NDOF_ERROR_FIXED_STRING_HPP
-#define NDOF_ERROR_FIXED_STRING_HPP
+#pragma once
 
 #include <cstddef>
 #include <array>
@@ -45,5 +44,3 @@ namespace ndof {
 
 
 } // namespace ndof
-#endif
-

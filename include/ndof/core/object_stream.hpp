@@ -1,5 +1,4 @@
-#ifndef NDOF_OS_OBJECT_STREAM_HPP
-#define NDOF_OS_OBJECT_STREAM_HPP
+#pragma once
 
 #include "object.hpp"
 #include <cstddef>
@@ -42,5 +41,3 @@ namespace ndof {
     
 
 }
-#endif
-

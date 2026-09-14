@@ -1,11 +1,10 @@
 // Copyright 2026 The ndof Authors
 // SPDX-License-Identifier: Apache-2.0
-#ifndef NDOF_ERROR_OBJECT_HPP
-#define NDOF_ERROR_OBJECT_HPP
-#include "/home/dev/ndof-core/include/ndof/core/allocator_support.hpp"
-#include "/home/dev/ndof-core/include/ndof/core/configs.hpp"
+#pragma once
+
+#include "ndof/core/allocator_support.hpp"
+#include "ndof/core/configs.hpp"
  
-// TODO: Move this to the core library.
 // TODO: Make sure the method classifier stuff specializes on noexcept.
 
 #include <algorithm>
@@ -746,4 +745,3 @@ using object  = basic_object<char,    rebound_default_allocator_t<char>>;
 using wobject = basic_object<wchar_t, rebound_default_allocator_t<wchar_t>>;
 
 };
-#endif

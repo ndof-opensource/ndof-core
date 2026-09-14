@@ -1,8 +1,7 @@
 // Copyright 2026 The ndof Authors
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef NDOF_ERROR_CONFIGS_HPP
-#define NDOF_ERROR_CONFIGS_HPP
+#pragma once
 
 // TODO: Check the character set that was used to compile the library and provide a way to query it at runtime.
 //       We can use this setting as the default character set for the library and provide a way to override it at runtime if necessary.
@@ -96,7 +95,7 @@ consteval bool avoid_implicit_heap_allocation() noexcept {
 #if defined(NDOF_RTTI_FEATURE_ENABLED) && NDOF_RTTI_FEATURE_ENABLED == 1
 using type_token = std::type_index;
 #else
-#include "ndof/error/type_index.hpp"
+#include "ndof/core/type_index.hpp"
 using type_token = ndof_type_index;
 #endif
 
@@ -222,4 +221,3 @@ using default_string_view = std::basic_string_view<ndof::default_char_t, default
 }
 
 } // namespace ndof
-#endif // NDOF_ERROR_CONFIGS_HPP

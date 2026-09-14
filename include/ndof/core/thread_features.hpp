@@ -1,5 +1,4 @@
-#ifndef NDOF_CORE_THREAD_FEATURES_HPP
-#define NDOF_CORE_THREAD_FEATURES_HPP
+#pragma once
 
 #include "configs.hpp"
 
@@ -190,5 +189,3 @@ make_configurable_unique_shared_thread_guard(
 }
 
 } // namespace ndof
-
-#endif // NDOF_CORE_THREAD_FEATURES_HPP

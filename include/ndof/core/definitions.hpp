@@ -1,6 +1,5 @@
 
-#ifndef NDOF_CORE_DEFINITIONS_HPP
-#define NDOF_CORE_DEFINITIONS_HPP
+#pragma once
 
 // Core definitions for ndof-core
 // Add declarations or macro definitions here as needed.
@@ -14,4 +13,3 @@ namespace ndof {
         concept unbounded_array = std::is_unbounded_array_v<T>;
 } // namespace ndof
 
-#endif // NDOF_CORE_DEFINITIONS_HPP
