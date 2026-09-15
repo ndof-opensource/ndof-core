@@ -1,8 +1,7 @@
 // Copyright 2026 The ndof Authors
 // SPDX-License-Identifier: Apache-2.0
-
-#pragma once
-
+#ifndef NDOF_CORE_TYPE_INDEX_HPP
+#define NDOF_CORE_TYPE_INDEX_HPP
 #include <compare>
 #include <cstddef>
 #include <functional>
@@ -77,3 +76,5 @@ struct hash<ndof::ndof_type_index> {
 };
 
 } // namespace std
+
+#endif // NDOF_CORE_TYPE_INDEX_HPP

@@ -1,8 +1,7 @@
 // Copyright 2026 The ndof Authors
 // SPDX-License-Identifier: Apache-2.0
-
-#pragma once
-
+#ifndef NDOF_CORE_STRINGS_HPP
+#define NDOF_CORE_STRINGS_HPP
 #include <string_view>
 
 namespace ndof::core {
@@ -21,3 +20,5 @@ inline constexpr std::string_view whitespace = " \t\n\r\f\v";
 [[nodiscard]] std::string_view trim(std::string_view s) noexcept;
 
 } // namespace ndof::core
+
+#endif // NDOF_CORE_STRINGS_HPP

@@ -1,6 +1,5 @@
-#ifndef NDOF_ERROR_FIXED_STRING_HPP
-#define NDOF_ERROR_FIXED_STRING_HPP
-
+#ifndef NDOF_CORE_FIXED_STRING_HPP
+#define NDOF_CORE_FIXED_STRING_HPP
 #include <cstddef>
 #include <array>
 #include <string_view>
@@ -45,5 +44,5 @@ namespace ndof {
 
 
 } // namespace ndof
-#endif
 
+#endif // NDOF_CORE_FIXED_STRING_HPP

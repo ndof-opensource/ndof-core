@@ -1,6 +1,5 @@
-#ifndef NDOF_OS_OBJECT_STREAM_HPP
-#define NDOF_OS_OBJECT_STREAM_HPP
-
+#ifndef NDOF_CORE_OBJECT_STREAM_HPP
+#define NDOF_CORE_OBJECT_STREAM_HPP
 #include "object.hpp"
 #include <cstddef>
 #include <istream>
@@ -42,5 +41,5 @@ namespace ndof {
     
 
 }
-#endif
 
+#endif // NDOF_CORE_OBJECT_STREAM_HPP
