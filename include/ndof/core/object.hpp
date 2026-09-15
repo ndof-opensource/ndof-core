@@ -1,7 +1,7 @@
 // Copyright 2026 The ndof Authors
 // SPDX-License-Identifier: Apache-2.0
-#pragma once
-
+#ifndef NDOF_CORE_OBJECT_HPP
+#define NDOF_CORE_OBJECT_HPP
 #include "ndof/core/allocator_support.hpp"
 #include "ndof/core/configs.hpp"
  
@@ -745,3 +745,5 @@ using object  = basic_object<char,    rebound_default_allocator_t<char>>;
 using wobject = basic_object<wchar_t, rebound_default_allocator_t<wchar_t>>;
 
 };
+
+#endif // NDOF_CORE_OBJECT_HPP

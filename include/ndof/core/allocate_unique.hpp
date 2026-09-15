@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef NDOF_CORE_ALLOCATE_UNIQUE_HPP
+#define NDOF_CORE_ALLOCATE_UNIQUE_HPP
 #include "configs.hpp"
 #include "allocator_support.hpp"
 #include "definitions.hpp"
@@ -256,3 +256,5 @@ namespace ndof {
 } // namespace ndof
     // In exception-free mode, recoverable allocation failures are returned;
     // any unexpected exception terminates at this noexcept boundary.
+
+#endif // NDOF_CORE_ALLOCATE_UNIQUE_HPP

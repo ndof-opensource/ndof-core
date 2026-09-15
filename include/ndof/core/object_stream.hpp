@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef NDOF_CORE_OBJECT_STREAM_HPP
+#define NDOF_CORE_OBJECT_STREAM_HPP
 #include "object.hpp"
 #include <cstddef>
 #include <istream>
@@ -41,3 +41,5 @@ namespace ndof {
     
 
 }
+
+#endif // NDOF_CORE_OBJECT_STREAM_HPP

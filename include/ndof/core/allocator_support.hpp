@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef NDOF_CORE_ALLOCATOR_SUPPORT_HPP
+#define NDOF_CORE_ALLOCATOR_SUPPORT_HPP
 #include "configs.hpp"
 
 #include <concepts>
@@ -110,3 +110,5 @@ template<allocator_like Alloc>
 
 
 } // namespace ndof::error
+
+#endif // NDOF_CORE_ALLOCATOR_SUPPORT_HPP

@@ -1,8 +1,7 @@
 // Copyright 2026 The ndof Authors
 // SPDX-License-Identifier: Apache-2.0
-
-#pragma once
-
+#ifndef NDOF_CORE_CONFIGS_HPP
+#define NDOF_CORE_CONFIGS_HPP
 // TODO: Check the character set that was used to compile the library and provide a way to query it at runtime.
 //       We can use this setting as the default character set for the library and provide a way to override it at runtime if necessary.
 //       Probably by defining ndof::object to be ndof::basic_object<ndof::default_char_type> and providing a way to change the default_char_type at runtime.
@@ -221,3 +220,5 @@ using default_string_view = std::basic_string_view<ndof::default_char_t, default
 }
 
 } // namespace ndof
+
+#endif // NDOF_CORE_CONFIGS_HPP

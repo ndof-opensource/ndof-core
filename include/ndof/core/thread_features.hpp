@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef NDOF_CORE_THREAD_FEATURES_HPP
+#define NDOF_CORE_THREAD_FEATURES_HPP
 #include "configs.hpp"
 
 #if defined(NDOF_THREADS_FEATURE_ENABLED) && NDOF_THREADS_FEATURE_ENABLED == 1
@@ -189,3 +189,5 @@ make_configurable_unique_shared_thread_guard(
 }
 
 } // namespace ndof
+
+#endif // NDOF_CORE_THREAD_FEATURES_HPP
