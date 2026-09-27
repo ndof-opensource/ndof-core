@@ -48,4 +48,19 @@ TEST(Object, ExtractMemberRemovesAndReturnsTheNamedMember) {
 	EXPECT_FALSE(root.extract_member("missing").has_value());
 }
 
+TEST(ObjectHelper, ProvidesTypeIndependentNodeBehavior) {
+	EXPECT_EQ(ndof::node_kind_name(ndof::node_kind::mapping), NDOF_STR("mapping"));
+	EXPECT_EQ(ndof::text_node{std::allocator<char>{}}.kind(), ndof::node_kind::text);
+	EXPECT_EQ(ndof::attribute_node{std::allocator<char>{}}.kind(), ndof::node_kind::attribute);
+	EXPECT_EQ(ndof::comment_node{std::allocator<char>{}}.kind(), ndof::node_kind::comment);
+
+	auto expected = ndof::node_kind::text;
+	auto location = std::source_location::current();
+	const ndof::mismatch_state state{expected, 2, "text", location};
+	const auto exception = state.to_exception();
+
+	EXPECT_NE(std::string_view(exception.what()).find("expected 'text'"), std::string_view::npos);
+	EXPECT_NE(std::string_view(exception.what()).find("variant index: 2"), std::string_view::npos);
+}
+
 } // namespace

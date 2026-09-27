@@ -40,9 +40,8 @@ namespace ndof {
             return N;
         }
     };
-
-
-
+    
 } // namespace ndof
 
 #endif // NDOF_CORE_FIXED_STRING_HPP
+

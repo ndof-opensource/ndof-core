@@ -32,6 +32,7 @@ option(NDOF_WERROR "Treat compiler warnings as errors" OFF)
 
 add_library(core
     src/configs.cpp
+    src/object.cpp
     src/strings.cpp
     src/version.cpp)
 add_library(ndof::core ALIAS core)

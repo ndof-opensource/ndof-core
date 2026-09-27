@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #ifndef NDOF_CORE_TYPE_INDEX_HPP
 #define NDOF_CORE_TYPE_INDEX_HPP
-#include <compare>
+
 #include <cstddef>
 #include <functional>
 #include <type_traits>
@@ -38,6 +38,7 @@ struct ndof_type_index {
     template<typename T>
     [[nodiscard]] static ndof_type_index for_type() noexcept {
         using normalized_type = std::remove_cvref_t<T>;
+        // Note: This is okay. Taking the address of a static constexpr variable is well-defined and yields a unique pointer for each type.
         return ndof_type_index(static_cast<value_type>(&detail::ndof_type_tag<normalized_type>::value));
     }
 

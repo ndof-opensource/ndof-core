@@ -10,19 +10,20 @@
 #include <string_view>
 #include <cstdint>
 #include <typeindex>
-
-// #include <expected> May be included below if exceptions are disabled. This is a C++23 feature, so we need to check for compiler support and provide a fallback if necessary.
+#include <expected> 
 
 // TODO: Come up with a clearer strategy of dependendies here.
 
 // Captures a boolean test value together with the original expression text.
-// Example: auto [passed, name] = NDOF_CAPTURE_BOOL_TEST(x > 0);
-#define NDOF_CAPTURE_BOOL_TEST(test_expression) static_cast<bool>(test_expression), #test_expression
+// Example: auto [passed, name] = NDOF_TEST(x > 0);
+#define NDOF_TEST(test_expression) static_cast<bool>(test_expression), #test_expression
 
 #if !defined(NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION) 
 #define NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION 0
 #endif
 
+// If this definition has not been set by the user, 
+// we provide a default value based on the heap allocation setting.
 #if !defined(NDOF_EXPECTED_RETURN_PREFERRED) 
 #define NDOF_EXPECTED_RETURN_PREFERRED NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION
 #endif
@@ -37,29 +38,27 @@
 #endif
 #endif
 
-
 // Determine whether C++ exceptions are enabled based on standard compiler switches.
 // Since exceptions may allocate on the heap, we disable them if implicit heap allocation is avoided.
 #if !defined(NDOF_EXCEPTIONS_FEATURE_ENABLED)
-#if (defined(__cpp_exceptions) || (defined(_CPPUNWIND) && defined(_MSC_VER))) && NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION == 0
+#if (defined(__cpp_exceptions) || (defined(_CPPUNWIND) && defined(_MSC_VER)))
 #define NDOF_EXCEPTIONS_FEATURE_ENABLED 1
 #else
 #define NDOF_EXCEPTIONS_FEATURE_ENABLED 0
 #endif
 #endif
 
-
 // Determine whether C++ thread support is enabled. __STDCPP_THREADS__ is the
 // standard library feature macro; the remaining checks cover common standard
 // library/compiler configurations that do not expose it.
 // If the heap is to be avoided, we also disable thread support.
 #if !defined(NDOF_THREADS_FEATURE_ENABLED)
-#if ((defined(__STDCPP_THREADS__) && __STDCPP_THREADS__ == 1) \
+#if   ((defined(__STDCPP_THREADS__) && __STDCPP_THREADS__ == 1) \
     || (defined(_MSC_VER) && defined(_MT)) \
     || (defined(_GLIBCXX_HAS_GTHREADS) && _GLIBCXX_HAS_GTHREADS) \
-    || defined(__GTHREADS) \
-    || defined(_LIBCPP_HAS_THREAD_API_PTHREAD) \
-    || defined(_LIBCPP_HAS_THREAD_API_WIN32)) \
+    ||  defined(__GTHREADS) \
+    ||  defined(_LIBCPP_HAS_THREAD_API_PTHREAD) \
+    ||  defined(_LIBCPP_HAS_THREAD_API_WIN32)) \
     && NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION == 0
 #define NDOF_THREADS_FEATURE_ENABLED 1
 #else
@@ -72,23 +71,13 @@ consteval bool avoid_implicit_heap_allocation() noexcept {
     return NDOF_AVOID_IMPLICIT_HEAP_ALLOCATION == 1;
 }
 
-
 [[nodiscard]] consteval bool expected_return_preferred() noexcept {
-#if defined(NDOF_EXPECTED_RETURN_PREFERRED) && NDOF_EXPECTED_RETURN_PREFERRED == 1
-    return true;
-#else
-    return false;
-#endif
+    return NDOF_EXPECTED_RETURN_PREFERRED == 1;
 }
 
 [[nodiscard]] consteval bool exceptions_feature_enabled() noexcept {
-#if (defined(NDOF_EXCEPTIONS_FEATURE_ENABLED) && NDOF_EXCEPTIONS_FEATURE_ENABLED == 1)  
-    return true;
-#else
-    return false;
-#endif
+    return NDOF_EXCEPTIONS_FEATURE_ENABLED == 1;
 }
-
 
 
 #if defined(NDOF_RTTI_FEATURE_ENABLED) && NDOF_RTTI_FEATURE_ENABLED == 1
@@ -98,33 +87,6 @@ using type_token = std::type_index;
 using type_token = ndof_type_index;
 #endif
 
-[[nodiscard]] consteval bool rtti_feature_enabled() noexcept {
-#if defined(NDOF_RTTI_FEATURE_ENABLED) && NDOF_RTTI_FEATURE_ENABLED == 1
-    return true;
-#else
-    return false;
-#endif
-}
-
-[[nodiscard]] consteval bool threads_feature_enabled() noexcept {
-#if defined(NDOF_THREADS_FEATURE_ENABLED) && NDOF_THREADS_FEATURE_ENABLED == 1
-    return true;
-#else
-    return false;
-#endif
-}
-
-enum class build_mode : std::uint8_t {
-    undefined,
-    debug,
-    release
-};
- 
-enum class type_index_mode : std::uint8_t {
-    undefined,
-    ndof_type_index,
-    rtti_type_index
-};
 
 template<typename T>
 [[nodiscard]] constexpr type_token type_token_of() noexcept {
@@ -133,6 +95,22 @@ template<typename T>
 #else
     return ndof_type_index::for_type<T>();
 #endif
+}
+
+[[nodiscard]] consteval bool rtti_feature_enabled() noexcept {
+    return NDOF_RTTI_FEATURE_ENABLED == 1;
+}
+
+[[nodiscard]] consteval bool threads_feature_enabled() noexcept {
+    return (NDOF_THREADS_FEATURE_ENABLED == 1) && !avoid_implicit_heap_allocation();
+}
+
+[[nodiscard]] consteval bool apply_except_policy(bool expression) noexcept {
+    if constexpr (exceptions_feature_enabled()) {
+        return expression;
+    } else {
+        return false;
+    }
 }
 
 // Determine the default character type based on standard compiler switches / the standard.
@@ -158,6 +136,18 @@ using default_char_t = NDOF_DEFAULT_CHAR_TYPE;
 template<typename CharT, template<typename> class Traits = NDOF_DEFAULT_CHAR_TRAITS_TYPE>
 using default_char_traits_t = Traits<CharT>;
 
+enum class build_mode : std::uint8_t {
+    undefined,
+    debug,
+    release
+};
+ 
+enum class type_index_mode : std::uint8_t {
+    undefined,
+    ndof_type_index,
+    rtti_type_index
+};
+
 // Determine the build mode based on standard compiler switches.
 // - NDEBUG defined typically indicates a release build (assert() is a no-op).
 // - Otherwise, treat it as a debug build.
@@ -169,8 +159,9 @@ using default_char_traits_t = Traits<CharT>;
 #endif
 #endif
 
-
-
+[[nodiscard]] consteval ndof::build_mode get_build_mode() noexcept {
+    return NDOF_BUILD_MODE;
+}
 
 using default_string_view = std::basic_string_view<ndof::default_char_t, default_char_traits_t<default_char_t>>;
 
@@ -186,9 +177,6 @@ using default_string_view = std::basic_string_view<ndof::default_char_t, default
 #endif
 #endif
 
-[[nodiscard]] consteval ndof::build_mode get_build_mode() noexcept {
-    return NDOF_BUILD_MODE;
-}
 
 [[nodiscard]] consteval default_string_view get_build_mode_name() noexcept {
     switch (get_build_mode()) {
